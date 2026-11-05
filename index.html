@@ -164,6 +164,21 @@
   #player { width: 100%; height: 100%; object-fit: contain; background: #000; }
   #video-error { position: absolute; display: none; flex-direction: column; gap: 1.2rem; align-items: center; padding: 0 20px; }
   #video-error.show { display: flex; }
+  /* Start: pure black, then the line appears; tap anywhere */
+  #screen-start { cursor: pointer; }
+  #screen-start h1 { opacity: 0; animation: none; }
+  body.onstart #counter, body.onstart #progress { opacity: 0; }
+  body.onstart:not(.reveal) #grain, body.onstart:not(.reveal)::before { opacity: 0; }
+  body.reveal #screen-start h1 {
+    animation: flicker 1.1s steps(1) both, beckon 3s ease-in-out 1.2s infinite;
+  }
+  @keyframes beckon {
+    0%, 100% { text-shadow: 0 0 40px rgba(255,26,60,.25); }
+    50%      { text-shadow: 0 0 60px rgba(255,26,60,.75), 0 0 120px rgba(255,26,60,.3); }
+  }
+  #restart-btn { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); opacity: 0; transition: opacity 1s 2s; }
+  body.reveal #restart-btn:not([hidden]) { opacity: 1; }
+
   /* Shot sequence */
   #shots-text { transition: color .2s; }
   #shots-text.miss { color: var(--red-hot); text-shadow: 0 0 30px rgba(255,26,60,.5); }
@@ -195,7 +210,7 @@
   }
 </style>
 </head>
-<body>
+<body class="onstart">
   <div id="progress"></div>
   <div id="counter"></div>
   <div id="flash"></div>
@@ -203,9 +218,6 @@
 
   <section class="screen active" id="screen-start">
     <h1 id="start-heading"></h1>
-    <div class="rule"></div>
-    <p class="sub" id="start-text"></p>
-    <button class="btn primary" id="start-btn" type="button" disabled>...</button>
     <button class="small" id="restart-btn" type="button" hidden>Start from the beginning</button>
   </section>
 
@@ -259,6 +271,7 @@
   function show(name) {
     screens.forEach(s => $('screen-' + s).classList.toggle('active', s === name));
     document.body.classList.toggle('watching', name === 'video');
+    document.body.classList.toggle('onstart', name === 'start');
     if (name !== 'video') player.pause();
   }
   function setProgress() {
@@ -391,20 +404,22 @@
     show('end');
   }
 
+  let ready = false;
   function renderStart() {
     document.title = flow.title || document.title;
-    $('start-heading').textContent = flow.start.heading || 'Ready?';
-    $('start-text').textContent = flow.start.text || '';
+    $('start-heading').textContent = flow.start.heading || 'Now or never.';
     const saved = load();
-    const resumable = saved > 0 && saved < flow.steps.length;
-    $('start-btn').textContent = resumable ? (flow.start.continueButton || 'Continue') : (flow.start.button || 'Enter');
-    $('restart-btn').hidden = !resumable;
-    $('start-btn').disabled = false;
+    $('restart-btn').hidden = !(saved > 0 && saved < flow.steps.length);
+    show('start');
     setProgress();
+    // Pure black first, then the line appears.
+    setTimeout(() => { document.body.classList.add('reveal'); ready = true; }, flow.start.delay == null ? 1800 : flow.start.delay);
   }
 
   /* ---------- events ---------- */
-  $('start-btn').addEventListener('click', () => {
+  $('screen-start').addEventListener('click', (e) => {
+    if (!ready || e.target === $('restart-btn')) return;
+    ready = false;
     const saved = load();
     flash('white');
     setTimeout(() => go(saved > 0 && saved < flow.steps.length ? saved : 0), 100);
@@ -431,8 +446,8 @@
       renderStart();
     })
     .catch(err => {
-      $('start-heading').textContent = 'No flow';
-      $('start-text').textContent = 'flow.json is missing or broken (' + err.message + ')';
+      document.body.classList.add('reveal');
+      $('start-heading').textContent = 'flow.json is missing or broken (' + err.message + ')';
     });
 })();
 </script>

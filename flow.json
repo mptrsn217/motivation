@@ -1,10 +1,8 @@
 {
   "title": "Motivation",
   "start": {
-    "heading": "You scanned it.",
-    "text": "No skipping. No excuses. Answer, then watch.",
-    "button": "Enter",
-    "continueButton": "Continue"
+    "heading": "Now or never.",
+    "delay": 1800
   },
   "steps": [
     {

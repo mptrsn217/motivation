@@ -51,8 +51,8 @@ Open `flow.json` in any text editor. Steps run top to bottom.
 - `gaveUp` at the top sets the message shown on a wrong button. `"restart": false`
   would let them continue from the same step after reopening instead of starting over.
 - A video `src` can also be a full `https://...` link to a video hosted elsewhere.
-- `start` and `end` set the first and last screen. `start.continueButton` is the
-  label shown when someone comes back mid-way (default "Continue").
+- `start.heading` is the line that appears out of the black after `start.delay`
+  milliseconds. Tapping anywhere starts. `end` sets the last screen.
 
 After editing, check it:
 

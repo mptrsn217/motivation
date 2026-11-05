@@ -80,24 +80,56 @@ def check_flow() -> bool:
     return ok
 
 
+def _rounded_svg(matrix, box=10, radius=4.2, border=2):
+    """SVG of the QR with rounded outer corners on each run of modules."""
+    n = len(matrix)
+    size = (n + 2 * border) * box
+    def dark(r, c):
+        return 0 <= r < n and 0 <= c < n and matrix[r][c]
+    parts = []
+    for r in range(n):
+        for c in range(n):
+            if not matrix[r][c]:
+                continue
+            x, y, b, k = (c + border) * box, (r + border) * box, box, radius
+            tl = not dark(r - 1, c) and not dark(r, c - 1)
+            tr = not dark(r - 1, c) and not dark(r, c + 1)
+            br = not dark(r + 1, c) and not dark(r, c + 1)
+            bl = not dark(r + 1, c) and not dark(r, c - 1)
+            d = [f"M{x + (k if tl else 0)},{y}"]
+            d.append(f"H{x + b - (k if tr else 0)}")
+            if tr: d.append(f"a{k},{k} 0 0 1 {k},{k}")
+            d.append(f"V{y + b - (k if br else 0)}")
+            if br: d.append(f"a{k},{k} 0 0 1 -{k},{k}")
+            d.append(f"H{x + (k if bl else 0)}")
+            if bl: d.append(f"a{k},{k} 0 0 1 -{k},-{k}")
+            d.append(f"V{y + (k if tl else 0)}")
+            if tl: d.append(f"a{k},{k} 0 0 1 {k},-{k}")
+            d.append("Z")
+            parts.append("".join(d))
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {size} {size}" '
+            f'width="{size}" height="{size}" shape-rendering="geometricPrecision">'
+            f'<rect width="100%" height="100%" fill="#fff"/>'
+            f'<path fill="#000" d="{" ".join(parts)}"/></svg>')
+
+
 def make_qr(url: str):
     try:
         import qrcode
-        import qrcode.image.svg
+        from qrcode.image.styledpil import StyledPilImage
+        from qrcode.image.styles.moduledrawers.pil import RoundedModuleDrawer
     except ImportError:
         sys.exit('QR library missing. Run:  python -m pip install "qrcode[pil]"')
 
-    png = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, border=2, box_size=20)
-    png.add_data(url)
-    png.make(fit=True)
-    png.make_image(fill_color="black", back_color="white").save(ROOT / "qr.png")
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, border=2, box_size=24)
+    qr.add_data(url)
+    qr.make(fit=True)
+    qr.make_image(image_factory=StyledPilImage, module_drawer=RoundedModuleDrawer()).save(ROOT / "qr.png")
+    (ROOT / "qr.svg").write_text(_rounded_svg(qr.get_matrix()), encoding="utf-8")
 
-    svg = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, border=2)
-    svg.add_data(url)
-    svg.make(fit=True)
-    svg.make_image(image_factory=qrcode.image.svg.SvgPathImage).save(ROOT / "qr.svg")
-
-    print(f"QR code for {url}\n  -> qr.png (print-ready)\n  -> qr.svg (scales to any size)")
+    print("QR code for " + url)
+    print("  -> qr.png (print-ready, rounded)")
+    print("  -> qr.svg (scales to any size, rounded)")
 
 
 if __name__ == "__main__":

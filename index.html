@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0b12">
+<title>Motivation</title>
+<style>
+  /* ===== Theme: change these to match your posters ===== */
+  :root {
+    --bg: #0b0b12;
+    --fg: #ffffff;
+    --muted: rgba(255,255,255,.65);
+    --accent: #ff4d4d;        /* main poster colour */
+    --accent-2: #ffb347;      /* second colour of the gradient */
+    --good: #35e08a;
+    --bad: #ff3b5c;
+    --font: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--font);
+    overflow: hidden; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Slow moving gradient blobs behind everything */
+  .blob {
+    position: fixed; border-radius: 50%; filter: blur(80px); opacity: .55;
+    pointer-events: none; z-index: 0;
+    animation: drift 18s ease-in-out infinite alternate;
+    transition: opacity .5s;
+  }
+  .blob.a { width: 60vmax; height: 60vmax; left: -20vmax; top: -20vmax; background: var(--accent); }
+  .blob.b { width: 50vmax; height: 50vmax; right: -15vmax; bottom: -15vmax; background: var(--accent-2); animation-delay: -9s; }
+  body.watching .blob { opacity: 0; }
+  @keyframes drift {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(8vmax, 6vmax) scale(1.15); }
+  }
+
+  /* Progress bar */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .5s cubic-bezier(.2,.8,.2,1); z-index: 5;
+  }
+
+  /* Screens */
+  .screen {
+    position: fixed; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.25rem; padding: 2rem max(16px, env(safe-area-inset-right)) 2rem max(16px, env(safe-area-inset-left));
+    text-align: center; opacity: 0; pointer-events: none;
+    transform: translateY(16px) scale(.98);
+    transition: opacity .45s ease, transform .45s cubic-bezier(.2,.8,.2,1);
+  }
+  .screen.active { opacity: 1; pointer-events: auto; transform: none; }
+
+  h1 {
+    margin: 0; font-size: clamp(1.8rem, 7vw, 3.4rem); line-height: 1.1;
+    letter-spacing: -.01em; font-weight: 800; max-width: 22ch;
+  }
+  .sub { margin: 0; color: var(--muted); font-size: clamp(1rem, 3.5vw, 1.2rem); max-width: 34ch; }
+  .question { max-width: 18ch; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    position: relative; overflow: hidden; isolation: isolate;
+    font: inherit; font-size: clamp(1.05rem, 4vw, 1.35rem); font-weight: 700;
+    color: var(--fg); background: rgba(255,255,255,.06);
+    border: 2px solid rgba(255,255,255,.25); border-radius: 999px;
+    padding: 1rem 2.2rem; min-width: min(80vw, 300px); cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .25s, border-color .25s, background .25s, opacity .3s;
+  }
+  .btn::before {  /* gradient glow that fades in on hover */
+    content: ""; position: absolute; inset: -2px; border-radius: inherit; z-index: -1;
+    background: linear-gradient(120deg, var(--accent), var(--accent-2), var(--accent));
+    background-size: 200% 200%; opacity: 0; transition: opacity .3s;
+    animation: sheen 3s linear infinite;
+  }
+  @keyframes sheen { to { background-position: 200% 0; } }
+  .btn:hover, .btn:focus-visible {
+    transform: translateY(-3px) scale(1.03); border-color: transparent;
+    box-shadow: 0 12px 40px -10px var(--accent);
+  }
+  .btn:hover::before, .btn:focus-visible::before { opacity: 1; }
+  .btn:active { transform: translateY(0) scale(.97); }
+  .btn:disabled { cursor: default; }
+
+  .btn.primary { border-color: transparent; animation: breathe 2.4s ease-in-out infinite; }
+  .btn.primary::before { opacity: 1; }
+  @keyframes breathe {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0), 0 10px 30px -10px var(--accent); }
+    50%     { box-shadow: 0 0 0 10px rgba(255,255,255,.06), 0 14px 40px -8px var(--accent); }
+  }
+
+  /* Ripple on tap */
+  .ripple {
+    position: absolute; border-radius: 50%; pointer-events: none; z-index: 1;
+    background: rgba(255,255,255,.35); transform: scale(0);
+    animation: ripple .6s ease-out forwards;
+  }
+  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+  /* Answer feedback */
+  .btn.correct {
+    background: var(--good); color: #062; border-color: transparent;
+    animation: pop .55s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  .btn.correct::before { opacity: 0; }
+  @keyframes pop {
+    0% { transform: scale(1); } 40% { transform: scale(1.12); } 100% { transform: scale(1.04); }
+  }
+  .btn.wrong {
+    background: var(--bad); color: #fff; border-color: transparent;
+    animation: shake .5s cubic-bezier(.36,.07,.19,.97);
+  }
+  .btn.wrong::before { opacity: 0; }
+  @keyframes shake {
+    10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); }
+    30%, 50%, 70% { transform: translateX(-8px); } 40%, 60% { transform: translateX(8px); }
+  }
+  .btn.fade { opacity: .25; transform: scale(.95); }
+
+  .options { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 340px; }
+  .options .btn { animation: rise .5s cubic-bezier(.2,.8,.2,1) both; }
+  .options .btn:nth-child(2) { animation-delay: .12s; }
+  .options .btn.correct { animation: pop .55s cubic-bezier(.2,.8,.2,1) forwards; }
+  .options .btn.wrong   { animation: shake .5s cubic-bezier(.36,.07,.19,.97); }
+  @keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+
+  #feedback {
+    min-height: 1.5em; margin: 0; font-weight: 600; color: var(--bad);
+    opacity: 0; transition: opacity .25s;
+  }
+  #feedback.show { opacity: 1; }
+
+  /* Confetti burst */
+  .confetti {
+    position: fixed; width: 10px; height: 10px; border-radius: 2px; z-index: 6;
+    pointer-events: none; left: var(--x); top: var(--y);
+    background: var(--c);
+    animation: burst .9s cubic-bezier(.2,.8,.3,1) forwards;
+  }
+  @keyframes burst {
+    to { transform: translate(var(--dx), var(--dy)) rotate(720deg) scale(.4); opacity: 0; }
+  }
+
+  /* Video */
+  #screen-video { padding: 0; background: #000; gap: 0; }
+  #player { width: 100%; height: 100%; object-fit: contain; background: #000; }
+  #video-error { position: absolute; display: none; flex-direction: column; gap: 1rem; align-items: center; }
+  #video-error.show { display: flex; }
+  #pause-hint {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    font-size: 4rem; opacity: 0; pointer-events: none; transition: opacity .2s;
+    text-shadow: 0 4px 20px rgba(0,0,0,.6);
+  }
+  #pause-hint.show { opacity: .9; }
+
+  .small {
+    font-size: .9rem; color: var(--muted); background: none; border: 0; cursor: pointer;
+    font-family: inherit; text-decoration: underline; padding: .5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="progress"></div>
+
+  <section class="screen active" id="screen-start">
+    <h1 id="start-heading">Loading…</h1>
+    <p class="sub" id="start-text"></p>
+    <button class="btn primary" id="start-btn" type="button" disabled>Start</button>
+    <button class="small" id="restart-btn" type="button" hidden>Start over from the beginning</button>
+  </section>
+
+  <section class="screen" id="screen-question">
+    <h1 class="question" id="q-text"></h1>
+    <div class="options" id="q-options"></div>
+    <p id="feedback"></p>
+  </section>
+
+  <section class="screen" id="screen-video">
+    <video id="player" playsinline preload="auto"></video>
+    <div id="pause-hint">⏸</div>
+    <div id="video-error">
+      <p class="sub">That video could not load.</p>
+      <button class="btn" id="retry-btn" type="button">Try again</button>
+      <button class="small" id="skip-btn" type="button">Skip it</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-end">
+    <h1 id="end-heading"></h1>
+    <p class="sub" id="end-text"></p>
+    <button class="btn primary" id="again-btn" type="button">Again</button>
+  </section>
+
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const screens = ['start', 'question', 'video', 'end'];
+  const player = $('player');
+  const STORAGE_KEY = 'motivation-progress';
+
+  let flow = null;
+  let index = 0;         // current step
+  let locked = false;    // ignore clicks while an animation plays
+
+  /* ---------- helpers ---------- */
+  function show(name) {
+    screens.forEach(s => $('screen-' + s).classList.toggle('active', s === name));
+    document.body.classList.toggle('watching', name === 'video');
+    if (name !== 'video') { player.pause(); }
+  }
+  function setProgress() {
+    const total = flow.steps.length;
+    $('progress').style.width = (Math.min(index, total) / total * 100) + '%';
+  }
+  function save(n) { try { localStorage.setItem(STORAGE_KEY, String(n)); } catch (e) {} }
+  function load()  { try { return parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10) || 0; } catch (e) { return 0; } }
+
+  function ripple(e) {
+    const btn = e.currentTarget;
+    const r = btn.getBoundingClientRect();
+    const size = Math.max(r.width, r.height);
+    const span = document.createElement('span');
+    span.className = 'ripple';
+    span.style.width = span.style.height = size + 'px';
+    span.style.left = (e.clientX - r.left - size / 2) + 'px';
+    span.style.top  = (e.clientY - r.top  - size / 2) + 'px';
+    btn.appendChild(span);
+    span.addEventListener('animationend', () => span.remove());
+  }
+
+  function confetti(x, y) {
+    const colors = ['var(--accent)', 'var(--accent-2)', 'var(--good)', '#fff'];
+    for (let i = 0; i < 28; i++) {
+      const p = document.createElement('span');
+      p.className = 'confetti';
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 80 + Math.random() * 160;
+      p.style.setProperty('--x', x + 'px');
+      p.style.setProperty('--y', y + 'px');
+      p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      p.style.setProperty('--dy', (Math.sin(angle) * dist - 60) + 'px');
+      p.style.setProperty('--c', colors[i % colors.length]);
+      document.body.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+  }
+
+  /* ---------- flow ---------- */
+  function go(n) {
+    index = n;
+    save(index);
+    setProgress();
+    if (index >= flow.steps.length) return showEnd();
+    const step = flow.steps[index];
+    if (step.type === 'question') return showQuestion(step);
+    if (step.type === 'video') return showVideo(step);
+    go(index + 1); // unknown step type: skip it
+  }
+
+  function showQuestion(step) {
+    locked = false;
+    $('q-text').textContent = step.text;
+    const fb = $('feedback');
+    fb.textContent = ''; fb.classList.remove('show');
+    const box = $('q-options');
+    box.innerHTML = '';
+    (step.options || []).forEach(opt => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn'; b.textContent = opt.label;
+      b.addEventListener('pointerdown', ripple);
+      b.addEventListener('click', (e) => answer(e, b, opt, step));
+      box.appendChild(b);
+    });
+    show('question');
+  }
+
+  function answer(e, btn, opt, step) {
+    if (locked) return;
+    locked = true;
+    const all = [...$('q-options').children];
+    if (opt.correct) {
+      btn.classList.add('correct');
+      all.filter(b => b !== btn).forEach(b => b.classList.add('fade'));
+      const r = btn.getBoundingClientRect();
+      confetti(r.left + r.width / 2, r.top + r.height / 2);
+      if (navigator.vibrate) navigator.vibrate(30);
+      setTimeout(() => go(index + 1), 900);
+    } else {
+      btn.classList.add('wrong');
+      const fb = $('feedback');
+      fb.textContent = step.wrongText || flow.wrongText || 'Try again.';
+      fb.classList.add('show');
+      if (navigator.vibrate) navigator.vibrate([40, 40, 40]);
+      setTimeout(() => { btn.classList.remove('wrong'); locked = false; }, 600);
+    }
+  }
+
+  function showVideo(step) {
+    $('video-error').classList.remove('show');
+    show('video');
+    player.src = step.src;
+    player.load();
+    player.play().catch(() => {});
+  }
+
+  function showEnd() {
+    $('end-heading').textContent = flow.end.heading || 'The end.';
+    $('end-text').textContent = flow.end.text || '';
+    $('again-btn').textContent = flow.end.button || 'Again';
+    show('end');
+  }
+
+  function renderStart() {
+    document.title = flow.title || document.title;
+    $('start-heading').textContent = flow.start.heading || 'Ready?';
+    $('start-text').textContent = flow.start.text || '';
+    const saved = load();
+    const resumable = saved > 0 && saved < flow.steps.length;
+    $('start-btn').textContent = resumable ? (flow.start.continueButton || 'Continue') : (flow.start.button || 'Start');
+    $('restart-btn').hidden = !resumable;
+    $('start-btn').disabled = false;
+    setProgress();
+  }
+
+  /* ---------- events ---------- */
+  $('start-btn').addEventListener('pointerdown', ripple);
+  $('start-btn').addEventListener('click', () => {
+    const saved = load();
+    go(saved > 0 && saved < flow.steps.length ? saved : 0);
+  });
+  $('restart-btn').addEventListener('click', () => { save(0); go(0); });
+  $('again-btn').addEventListener('pointerdown', ripple);
+  $('again-btn').addEventListener('click', () => { save(0); go(0); });
+  $('retry-btn').addEventListener('click', () => showVideo(flow.steps[index]));
+  $('skip-btn').addEventListener('click', () => go(index + 1));
+
+  player.addEventListener('ended', () => go(index + 1));
+  player.addEventListener('error', () => $('video-error').classList.add('show'));
+  player.addEventListener('click', () => {
+    if (player.paused) player.play(); else player.pause();
+  });
+  player.addEventListener('pause', () => { if (!player.ended) $('pause-hint').classList.add('show'); });
+  player.addEventListener('play',  () => $('pause-hint').classList.remove('show'));
+
+  /* ---------- boot ---------- */
+  fetch('flow.json', { cache: 'no-store' })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(data => {
+      flow = data;
+      if (!Array.isArray(flow.steps) || flow.steps.length === 0) throw new Error('no steps');
+      flow.start = flow.start || {}; flow.end = flow.end || {};
+      renderStart();
+    })
+    .catch(err => {
+      $('start-heading').textContent = 'flow.json could not be loaded';
+      $('start-text').textContent = 'Check that flow.json is next to index.html and is valid JSON. (' + err.message + ')';
+    });
+})();
+</script>
+</body>
+</html>

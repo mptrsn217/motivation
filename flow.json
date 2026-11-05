@@ -67,6 +67,20 @@
       "src": "videos/never_quit.mp4"
     },
     {
+      "type": "question",
+      "text": "What if you can pull this off?",
+      "options": [
+        {
+          "label": "Yes",
+          "correct": true
+        },
+        {
+          "label": "No",
+          "correct": false
+        }
+      ]
+    },
+    {
       "type": "video",
       "src": "videos/whatif.mp4"
     },

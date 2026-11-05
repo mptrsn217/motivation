@@ -47,6 +47,9 @@ def check_flow() -> bool:
                 print(f"  step {n}: question '{label}' has no option marked \"correct\": true"); ok = False
             if any(not o.get("label") for o in opts):
                 print(f"  step {n}: question '{label}' has an option without a label"); ok = False
+        elif kind == "text":
+            if not step.get("text"):
+                print(f"  step {n}: text step has no text"); ok = False
         elif kind == "shots":
             if not step.get("button"):
                 print(f"  step {n}: shots step has no button text"); ok = False
@@ -70,7 +73,7 @@ def check_flow() -> bool:
                         note += "  <- .mov may not play on Android; convert to .mp4"
                     print(f"  step {n}: {src} ({size / 1024 / 1024:.1f} MB){note}")
         else:
-            print(f"  step {n}: unknown type {kind!r} (use \"question\", \"shots\" or \"video\")"); ok = False
+            print(f"  step {n}: unknown type {kind!r} (use \"question\", \"text\", \"shots\" or \"video\")"); ok = False
 
     print(f"{len(steps)} steps: {questions} questions, {videos} videos")
     print("flow.json OK" if ok else "flow.json has problems (see above)")

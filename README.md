@@ -3,9 +3,7 @@
 A one-page site behind a QR code. Scanning it opens a flow: a question with
 buttons, pick the right one and a video plays, then the next question, and so on.
 Any wrong button ends it: the "gave up" message shows, the screen goes black and
-stays dead until the page is opened again. Progress is remembered on the phone,
-so closing the page and scanning again continues where they left off (unless they
-gave up, which sends them back to the start).
+stays dead until the page is opened again. Every open starts from the top.
 
 ## Files
 
@@ -40,6 +38,12 @@ Open `flow.json` in any text editor. Steps run top to bottom.
 - Put as many steps as you like, in any order. A question can follow a video,
   two videos can follow each other, and so on.
 - A question can have a single option (one button that just leads on).
+- A text-only screen: a line with no buttons that moves on by itself after `hold` ms.
+
+```json
+{ "type": "text", "text": "What if you can pull this off?", "hold": 3000 }
+```
+
 - A shot sequence: every press of the button is a miss. The number of presses it takes
   is random between `missesMin` and `missesMax` (or fixed with `misses`), then the
   screen cuts to black and the video plays. `giveUp` is the wrong button.
@@ -49,8 +53,7 @@ Open `flow.json` in any text editor. Steps run top to bottom.
   "missText": "Missed.", "missesMin": 7, "missesMax": 20, "giveUp": "Give up" }
 ```
 
-- `gaveUp` at the top sets the message shown on a wrong button. `"restart": false`
-  would let them continue from the same step after reopening instead of starting over.
+- `gaveUp` at the top sets the message shown on a wrong button.
 - A video `src` can also be a full `https://...` link to a video hosted elsewhere.
 - `start.heading` is the line that appears out of the black after `start.delay`
   milliseconds. Tapping anywhere starts. `end` sets the last screen.

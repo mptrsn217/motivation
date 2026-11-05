@@ -239,6 +239,10 @@
     </div>
   </section>
 
+  <section class="screen" id="screen-text">
+    <h1 id="text-line"></h1>
+  </section>
+
   <section class="screen" id="screen-shots">
     <h1 id="shots-text"></h1>
     <div class="options">
@@ -261,7 +265,7 @@
 <script>
 (function () {
   const $ = (id) => document.getElementById(id);
-  const screens = ['start', 'question', 'shots', 'video', 'over', 'end'];
+  const screens = ['start', 'question', 'text', 'shots', 'video', 'over', 'end'];
   const player = $('player');
   const STORAGE_KEY = 'motivation-progress';
 
@@ -284,8 +288,9 @@
     const videosAll = flow.steps.filter(s => s.type === 'video').length;
     $('counter').textContent = videosAll ? String(videosDone).padStart(2, '0') + ' / ' + String(videosAll).padStart(2, '0') : '';
   }
-  function save(n) { try { localStorage.setItem(STORAGE_KEY, String(n)); } catch (e) {} }
-  function load()  { try { return parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10) || 0; } catch (e) { return 0; } }
+  // Progress is not remembered: every scan starts from the top.
+  function save(n) {}
+  function load()  { return 0; }
 
   function flash(kind) {
     const f = $('flash');
@@ -308,9 +313,18 @@
     if (index >= flow.steps.length) return showEnd();
     const step = flow.steps[index];
     if (step.type === 'question') return showQuestion(step);
+    if (step.type === 'text') return showText(step);
     if (step.type === 'shots') return showShots(step);
     if (step.type === 'video') return showVideo(step);
     go(index + 1);
+  }
+
+  /* A line of text, no buttons; moves on by itself after "hold" ms. */
+  function showText(step) {
+    locked = true;
+    $('text-line').textContent = step.text || '';
+    show('text');
+    setTimeout(() => go(index + 1), step.hold == null ? 3000 : step.hold);
   }
 
   /* Any wrong button ends it: message, then black, dead until the page is opened again. */
@@ -413,8 +427,7 @@
   function renderStart() {
     document.title = flow.title || document.title;
     $('start-heading').textContent = flow.start.heading || 'Now or never.';
-    const saved = load();
-    $('restart-btn').hidden = !(saved > 0 && saved < flow.steps.length);
+    $('restart-btn').hidden = true;
     show('start');
     setProgress();
     // Pure black first, then the line appears.
@@ -451,6 +464,8 @@
   player.addEventListener('pause', () => {
     if (!player.ended && document.body.classList.contains('watching')) player.play().catch(() => {});
   });
+
+  window.motivationGo = (n) => go(n);   // for testing from the console
 
   /* ---------- boot ---------- */
   fetch('flow.json', { cache: 'no-store' })

@@ -1,9 +1,11 @@
 # Motivation
 
-A one-page site behind a QR code. Scanning it opens a flow: a question with two
+A one-page site behind a QR code. Scanning it opens a flow: a question with
 buttons, pick the right one and a video plays, then the next question, and so on.
-Wrong answers shake and let you try again. Progress is remembered on the phone,
-so closing the page and scanning again continues where they left off.
+Any wrong button ends it: the "gave up" message shows, the screen goes black and
+stays dead until the page is opened again. Progress is remembered on the phone,
+so closing the page and scanning again continues where they left off (unless they
+gave up, which sends them back to the start).
 
 ## Files
 
@@ -37,7 +39,17 @@ Open `flow.json` in any text editor. Steps run top to bottom.
 
 - Put as many steps as you like, in any order. A question can follow a video,
   two videos can follow each other, and so on.
-- `wrongText` on a question is optional. Without it the top-level `wrongText` is used.
+- A question can have a single option (one button that just leads on).
+- A shot sequence: every press of the button is a miss; after `misses` presses the
+  screen cuts to black and the video plays. `giveUp` is the wrong button.
+
+```json
+{ "type": "shots", "text": "Game on the line.", "button": "Take the shot",
+  "missText": "Missed.", "misses": 10, "giveUp": "Give up" }
+```
+
+- `gaveUp` at the top sets the message shown on a wrong button. `"restart": false`
+  would let them continue from the same step after reopening instead of starting over.
 - A video `src` can also be a full `https://...` link to a video hosted elsewhere.
 - `start` and `end` set the first and last screen. `start.continueButton` is the
   label shown when someone comes back mid-way (default "Continue").
@@ -50,21 +62,21 @@ python build.py
 
 It reports missing files, questions with no correct answer, and anything else wrong.
 
-## Hosting (Netlify, free)
+## Hosting
 
-1. Make a free account at app.netlify.com.
-2. Choose **Deploy manually** and drag this whole folder onto the page.
-3. Netlify gives you an address like `something.netlify.app`. Rename it under
-   Site settings if you want a nicer one.
-4. Make the QR code for that address:
+Live at **https://mptrsn217.github.io/motivation/** from the GitHub repository
+`mptrsn217/motivation` (GitHub Pages, main branch, root folder).
+
+To update: edit `flow.json` or add videos, then
 
 ```bash
-python build.py --url https://your-site.netlify.app/
+python build.py
+git add -A && git commit -m "update"
+git push
 ```
 
-5. Put `qr.svg` (or `qr.png`) on the poster, at least 2.5 cm (1 inch) wide. Scan it to check.
-
-To update later: edit `flow.json` or add videos, run `python build.py`, drag the folder onto Netlify again.
+The live site updates about a minute after the push. If the address ever changes,
+remake the QR code with `python build.py --url <new address>`.
 
 ## Testing on this computer
 

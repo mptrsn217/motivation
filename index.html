@@ -56,6 +56,8 @@
   #flash { position: fixed; inset: 0; z-index: 8; pointer-events: none; opacity: 0; background: #fff; }
   #flash.white { animation: cut .5s ease-out forwards; }
   #flash.red   { background: var(--red-hot); animation: hit .35s ease-out forwards; }
+  #flash.black { background: #000; animation: blackout 2s ease-in-out forwards; }
+  @keyframes blackout { 0% { opacity: 0; } 20% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes cut { 0% { opacity: 1; } 15% { opacity: 1; background: #fff; } 16% { background: #000; opacity: 1; } 100% { background: #000; opacity: 0; } }
   @keyframes hit { 0% { opacity: .55; } 100% { opacity: 0; } }
 
@@ -162,12 +164,23 @@
   #player { width: 100%; height: 100%; object-fit: contain; background: #000; }
   #video-error { position: absolute; display: none; flex-direction: column; gap: 1.2rem; align-items: center; padding: 0 20px; }
   #video-error.show { display: flex; }
-  #pause-hint {
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
-    font-family: var(--display); font-size: 2rem; letter-spacing: .4em; color: var(--fg);
-    opacity: 0; pointer-events: none; transition: opacity .2s;
+  /* Shot sequence */
+  #shots-text { transition: color .2s; }
+  #shots-text.miss { color: var(--red-hot); text-shadow: 0 0 30px rgba(255,26,60,.5); }
+  .misses { display: flex; gap: .6rem; }
+  .misses i {
+    width: 10px; height: 10px; border: 1px solid var(--line); transform: rotate(45deg);
+    transition: background .2s, border-color .2s;
   }
-  #pause-hint.show { opacity: .8; }
+  .misses i.hit { background: var(--red-hot); border-color: var(--red-hot); box-shadow: 0 0 10px var(--red-hot); }
+  .giveup { margin-top: .5rem; }
+
+  /* Game over: text, then everything goes black and dead */
+  #screen-over h1 { color: var(--red-hot); text-shadow: 0 0 40px rgba(255,26,60,.5); }
+  body.dead * { pointer-events: none !important; }
+  body.dead #screen-over, body.dead #progress, body.dead #counter, body.dead #grain, body.dead::before {
+    opacity: 0 !important; transition: opacity 1.8s ease-in !important;
+  }
 
   .small {
     font-family: var(--mono); font-size: .7rem; letter-spacing: .25em; text-transform: uppercase;
@@ -203,13 +216,25 @@
   </section>
 
   <section class="screen" id="screen-video">
-    <video id="player" playsinline preload="auto"></video>
-    <div id="pause-hint">PAUSED</div>
+    <video id="player" playsinline preload="auto" disablepictureinpicture></video>
     <div id="video-error">
       <p class="sub">The video did not load.</p>
       <button class="btn" id="retry-btn" type="button">Retry</button>
       <button class="small" id="skip-btn" type="button">Skip it</button>
     </div>
+  </section>
+
+  <section class="screen" id="screen-shots">
+    <h1 id="shots-text"></h1>
+    <div class="misses" id="misses"></div>
+    <div class="options">
+      <button class="btn primary" id="shot-btn" type="button"></button>
+      <button class="btn giveup" id="giveup-btn" type="button"></button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-over">
+    <h1 id="over-heading"></h1>
   </section>
 
   <section class="screen" id="screen-end">
@@ -222,7 +247,7 @@
 <script>
 (function () {
   const $ = (id) => document.getElementById(id);
-  const screens = ['start', 'question', 'video', 'end'];
+  const screens = ['start', 'question', 'shots', 'video', 'over', 'end'];
   const player = $('player');
   const STORAGE_KEY = 'motivation-progress';
 
@@ -268,8 +293,53 @@
     if (index >= flow.steps.length) return showEnd();
     const step = flow.steps[index];
     if (step.type === 'question') return showQuestion(step);
+    if (step.type === 'shots') return showShots(step);
     if (step.type === 'video') return showVideo(step);
     go(index + 1);
+  }
+
+  /* Any wrong button ends it: message, then black, dead until the page is opened again. */
+  function gameOver() {
+    locked = true;
+    const over = flow.gaveUp || {};
+    if (over.restart !== false) save(0);
+    $('over-heading').textContent = over.heading || 'You gave up.';
+    flash('red');
+    show('over');
+    setTimeout(() => document.body.classList.add('dead'), over.delay || 2500);
+  }
+
+  function showShots(step) {
+    locked = false;
+    let misses = 0;
+    const need = step.misses == null ? 5 : step.misses;
+    const text = $('shots-text');
+    const dots = $('misses');
+    text.textContent = step.text || '';
+    text.classList.remove('miss');
+    dots.innerHTML = '';
+    for (let i = 0; i < need; i++) dots.appendChild(document.createElement('i'));
+    const shot = $('shot-btn'), giveup = $('giveup-btn');
+    shot.textContent = step.button || 'Take the shot';
+    giveup.textContent = step.giveUp || 'Give up';
+    giveup.hidden = !step.giveUp && step.giveUp !== undefined;
+    shot.onclick = () => {
+      if (locked) return;
+      misses++;
+      dots.children[misses - 1].classList.add('hit');
+      text.textContent = step.missText || 'Missed.';
+      text.classList.add('miss');
+      flash('red');
+      shake($('screen-shots'));
+      if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+      if (misses >= need) {           // last miss: cut to black, then the video
+        locked = true;
+        setTimeout(() => flash('black'), 700);
+        setTimeout(() => go(index + 1), 1200);
+      }
+    };
+    giveup.onclick = () => { if (!locked) gameOver(); };
+    show('shots');
   }
 
   function showQuestion(step) {
@@ -300,13 +370,9 @@
       setTimeout(() => go(index + 1), 450);
     } else {
       btn.classList.add('wrong');
-      flash('red');
       shake($('screen-question'));
-      const fb = $('feedback');
-      fb.textContent = step.wrongText || flow.wrongText || 'Wrong.';
-      fb.classList.add('show');
       if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
-      setTimeout(() => { btn.classList.remove('wrong'); locked = false; }, 550);
+      setTimeout(gameOver, 450);
     }
   }
 
@@ -350,9 +416,10 @@
 
   player.addEventListener('ended', () => go(index + 1));
   player.addEventListener('error', () => $('video-error').classList.add('show'));
-  player.addEventListener('click', () => { if (player.paused) player.play(); else player.pause(); });
-  player.addEventListener('pause', () => { if (!player.ended) $('pause-hint').classList.add('show'); });
-  player.addEventListener('play',  () => $('pause-hint').classList.remove('show'));
+  // No pausing: if anything pauses it (tap, OS, tab switch) it resumes.
+  player.addEventListener('pause', () => {
+    if (!player.ended && document.body.classList.contains('watching')) player.play().catch(() => {});
+  });
 
   /* ---------- boot ---------- */
   fetch('flow.json', { cache: 'no-store' })

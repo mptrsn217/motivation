@@ -6,123 +6,203 @@
     "button": "Enter",
     "continueButton": "Continue"
   },
-  "wrongText": "Wrong.",
   "steps": [
     {
       "type": "question",
       "text": "Whose fault is it?",
       "options": [
-        { "label": "Theirs", "correct": false },
-        { "label": "Mine", "correct": true }
-      ],
-      "wrongText": "Wrong. Own it."
+        {
+          "label": "Theirs",
+          "correct": false
+        },
+        {
+          "label": "Mine",
+          "correct": true
+        }
+      ]
     },
-    { "type": "video", "src": "videos/my_fault.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/my_fault.mp4"
+    },
     {
       "type": "question",
       "text": "Somebody else is working harder than you.",
       "options": [
-        { "label": "No they're not", "correct": false },
-        { "label": "They are", "correct": true }
-      ],
-      "wrongText": "Just say it."
-    },
-    { "type": "video", "src": "videos/everybody-else.mp4" },
-
-    {
-      "type": "question",
-      "text": "How many shots did Jordan miss?",
-      "options": [
-        { "label": "Almost none", "correct": false },
-        { "label": "Thousands", "correct": true }
+        {
+          "label": "Not possible",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/jordan_2.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/everybody-else.mp4"
+    },
+    {
+      "type": "shots",
+      "text": "Game on the line.",
+      "button": "Take the shot",
+      "missText": "Missed.",
+      "misses": 10,
+      "giveUp": "Give up"
+    },
+    {
+      "type": "video",
+      "src": "videos/jordan_2.mp4"
+    },
     {
       "type": "question",
       "text": "Have you failed enough?",
       "options": [
-        { "label": "Yes", "correct": false },
-        { "label": "No", "correct": true }
+        {
+          "label": "Yes",
+          "correct": false
+        },
+        {
+          "label": "No",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/failure.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/failure.mp4"
+    },
     {
       "type": "question",
       "text": "Then what?",
       "options": [
-        { "label": "Play it safe", "correct": false },
-        { "label": "Fail faster", "correct": true }
+        {
+          "label": "Play it safe",
+          "correct": false
+        },
+        {
+          "label": "Fail faster",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/fail_faster.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/fail_faster.mp4"
+    },
     {
       "type": "question",
       "text": "What do you do when it gets hard?",
       "options": [
-        { "label": "Quit", "correct": false },
-        { "label": "Keep going", "correct": true }
+        {
+          "label": "Quit",
+          "correct": false
+        },
+        {
+          "label": "Keep going",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/never_quit.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/never_quit.mp4"
+    },
     {
       "type": "question",
       "text": "What if it doesn't work out?",
       "options": [
-        { "label": "Then I don't try", "correct": false },
-        { "label": "Then I learn", "correct": true }
+        {
+          "label": "Then I don't try",
+          "correct": false
+        },
+        {
+          "label": "Then I learn",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/whatif.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/whatif.mp4"
+    },
     {
       "type": "question",
       "text": "Are you suffering enough?",
       "options": [
-        { "label": "Yes", "correct": false },
-        { "label": "No", "correct": true }
+        {
+          "label": "Yes",
+          "correct": false
+        },
+        {
+          "label": "No",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/suffer.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/suffer.mp4"
+    },
     {
       "type": "question",
       "text": "Seen the rock bottom yet?",
       "options": [
-        { "label": "Yes", "correct": false },
-        { "label": "No", "correct": true }
+        {
+          "label": "Yes",
+          "correct": false
+        },
+        {
+          "label": "No",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/rock_bottom.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/rock_bottom.mp4"
+    },
     {
       "type": "question",
       "text": "Tomorrow is going to be tougher.",
       "options": [
-        { "label": "Accept", "correct": true },
-        { "label": "Do not accept", "correct": false }
+        {
+          "label": "Accept",
+          "correct": true
+        },
+        {
+          "label": "Do not accept",
+          "correct": false
+        }
       ]
     },
-    { "type": "video", "src": "videos/tomorrow_is_tougher.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/tomorrow_is_tougher.mp4"
+    },
     {
       "type": "question",
       "text": "Ready?",
       "options": [
-        { "label": "Not yet", "correct": false },
-        { "label": "Let's f*ck!!", "correct": true }
+        {
+          "label": "Not yet",
+          "correct": false
+        },
+        {
+          "label": "Let's f*ck!!",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/lets_fck.mp4" }
+    {
+      "type": "video",
+      "src": "videos/lets_fck.mp4"
+    }
   ],
   "end": {
     "heading": "That's it.",
     "text": "Now go. Nobody is coming to do it for you.",
     "button": "Again"
+  },
+  "gaveUp": {
+    "heading": "Bitch, you gave up...",
+    "restart": true
   }
 }

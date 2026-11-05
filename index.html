@@ -78,7 +78,7 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 2rem; padding: 2rem max(20px, env(safe-area-inset-right)) 2rem max(20px, env(safe-area-inset-left));
     text-align: center; opacity: 0; pointer-events: none;
-    transition: opacity .35s ease;
+    transition: opacity .7s ease;
   }
   .screen.active { opacity: 1; pointer-events: auto; }
   .screen.shake { animation: shake .45s cubic-bezier(.36,.07,.19,.97); }
@@ -161,7 +161,8 @@
 
   /* Video */
   #screen-video { padding: 0; background: #000; gap: 0; }
-  #player { width: 100%; height: 100%; object-fit: contain; background: #000; }
+  #player { width: 100%; height: 100%; object-fit: contain; background: #000; opacity: 0; transition: opacity 1.1s ease; }
+  #player.visible { opacity: 1; }
   #video-error { position: absolute; display: none; flex-direction: column; gap: 1.2rem; align-items: center; padding: 0 20px; }
   #video-error.show { display: flex; }
   /* Start: pure black, then the line appears; tap anywhere */
@@ -182,13 +183,15 @@
   /* Shot sequence */
   #shots-text { transition: color .2s; }
   #shots-text.miss { color: var(--red-hot); text-shadow: 0 0 30px rgba(255,255,255,.5); }
-  .misses { display: flex; gap: .6rem; }
-  .misses i {
-    width: 10px; height: 10px; border: 1px solid var(--line); transform: rotate(45deg);
-    transition: background .2s, border-color .2s;
+  #shot-btn {   /* small, like the hard option always is */
+    font-size: 1rem; letter-spacing: .25em; padding: .7rem 1.4rem; width: auto; min-width: 0;
+    border-color: rgba(232,228,220,.35); animation: none;
   }
-  .misses i.hit { background: var(--red-hot); border-color: var(--red-hot); box-shadow: 0 0 10px var(--red-hot); }
-  .giveup { margin-top: .5rem; }
+  #giveup-btn { /* big and easy */
+    font-size: clamp(2.4rem, 10vw, 3.6rem); padding: 1.4rem 1.5rem; margin-top: 1.2rem;
+    border-width: 2px; animation: pulse 2.6s ease-in-out infinite;
+  }
+  #screen-shots .options { align-items: center; }
 
   /* Game over: text, then everything goes black and dead */
   #screen-over h1 { color: var(--red-hot); text-shadow: 0 0 40px rgba(255,255,255,.5); }
@@ -238,10 +241,9 @@
 
   <section class="screen" id="screen-shots">
     <h1 id="shots-text"></h1>
-    <div class="misses" id="misses"></div>
     <div class="options">
-      <button class="btn primary" id="shot-btn" type="button"></button>
-      <button class="btn giveup" id="giveup-btn" type="button"></button>
+      <button class="btn" id="shot-btn" type="button"></button>
+      <button class="btn" id="giveup-btn" type="button"></button>
     </div>
   </section>
 
@@ -325,13 +327,16 @@
   function showShots(step) {
     locked = false;
     let misses = 0;
-    const need = step.misses == null ? 5 : step.misses;
+    // How many misses before it goes in: fixed "misses", or random between missesMin and missesMax.
+    let need = step.misses;
+    if (need == null) {
+      const lo = step.missesMin == null ? 7 : step.missesMin;
+      const hi = step.missesMax == null ? 20 : step.missesMax;
+      need = lo + Math.floor(Math.random() * (hi - lo + 1));
+    }
     const text = $('shots-text');
-    const dots = $('misses');
     text.textContent = step.text || '';
     text.classList.remove('miss');
-    dots.innerHTML = '';
-    for (let i = 0; i < need; i++) dots.appendChild(document.createElement('i'));
     const shot = $('shot-btn'), giveup = $('giveup-btn');
     shot.textContent = step.button || 'Take the shot';
     giveup.textContent = step.giveUp || 'Give up';
@@ -339,7 +344,6 @@
     shot.onclick = () => {
       if (locked) return;
       misses++;
-      dots.children[misses - 1].classList.add('hit');
       text.textContent = step.missText || 'Missed.';
       text.classList.add('miss');
       flash('red');
@@ -379,8 +383,7 @@
       btn.classList.add('correct');
       all.filter(b => b !== btn).forEach(b => b.classList.add('fade'));
       if (navigator.vibrate) navigator.vibrate(40);
-      setTimeout(() => { flash('white'); }, 350);
-      setTimeout(() => go(index + 1), 450);
+      setTimeout(() => go(index + 1), 700);
     } else {
       btn.classList.add('wrong');
       shake($('screen-question'));
@@ -391,6 +394,8 @@
 
   function showVideo(step) {
     $('video-error').classList.remove('show');
+    player.classList.remove('visible');
+    fadingOut = false;
     show('video');
     player.src = step.src;
     player.load();
@@ -421,15 +426,26 @@
     if (!ready || e.target === $('restart-btn')) return;
     ready = false;
     const saved = load();
-    flash('white');
-    setTimeout(() => go(saved > 0 && saved < flow.steps.length ? saved : 0), 100);
+    go(saved > 0 && saved < flow.steps.length ? saved : 0);
   });
-  $('restart-btn').addEventListener('click', () => { save(0); flash('white'); setTimeout(() => go(0), 100); });
-  $('again-btn').addEventListener('click', () => { save(0); flash('white'); setTimeout(() => go(0), 100); });
+  $('restart-btn').addEventListener('click', () => { save(0); go(0); });
+  $('again-btn').addEventListener('click', () => { save(0); go(0); });
   $('retry-btn').addEventListener('click', () => showVideo(flow.steps[index]));
   $('skip-btn').addEventListener('click', () => go(index + 1));
 
-  player.addEventListener('ended', () => go(index + 1));
+  let fadingOut = false;
+  const FADE = 1.1; // seconds before the end to start fading out
+  player.addEventListener('playing', () => { if (!fadingOut) player.classList.add('visible'); });
+  player.addEventListener('timeupdate', () => {
+    if (!fadingOut && player.duration && player.duration - player.currentTime <= FADE) {
+      fadingOut = true;
+      player.classList.remove('visible');
+    }
+  });
+  player.addEventListener('ended', () => {
+    player.classList.remove('visible');
+    setTimeout(() => go(index + 1), 500);   // a beat of black before the next screen
+  });
   player.addEventListener('error', () => $('video-error').classList.add('show'));
   // No pausing: if anything pauses it (tap, OS, tab switch) it resumes.
   player.addEventListener('pause', () => {

@@ -32,8 +32,9 @@
       "text": "",
       "button": "Take the shot",
       "missText": "Missed.",
-      "misses": 10,
-      "giveUp": "Give up"
+      "giveUp": "Give up",
+      "missesMin": 7,
+      "missesMax": 20
     },
     {
       "type": "video",

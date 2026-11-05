@@ -40,12 +40,13 @@ Open `flow.json` in any text editor. Steps run top to bottom.
 - Put as many steps as you like, in any order. A question can follow a video,
   two videos can follow each other, and so on.
 - A question can have a single option (one button that just leads on).
-- A shot sequence: every press of the button is a miss; after `misses` presses the
+- A shot sequence: every press of the button is a miss. The number of presses it takes
+  is random between `missesMin` and `missesMax` (or fixed with `misses`), then the
   screen cuts to black and the video plays. `giveUp` is the wrong button.
 
 ```json
 { "type": "shots", "text": "Game on the line.", "button": "Take the shot",
-  "missText": "Missed.", "misses": 10, "giveUp": "Give up" }
+  "missText": "Missed.", "missesMin": 7, "missesMax": 20, "giveUp": "Give up" }
 ```
 
 - `gaveUp` at the top sets the message shown on a wrong button. `"restart": false`

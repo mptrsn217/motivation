@@ -2,166 +2,269 @@
   "title": "Motivation",
   "start": {
     "heading": "You scanned it.",
-    "text": "Answer right, and you get to watch. Answer wrong, and you try again.",
-    "button": "Let's go",
+    "text": "No skipping. No excuses. Answer, then watch.",
+    "button": "Enter",
     "continueButton": "Continue"
   },
-  "wrongText": "Not that one. Try again.",
+  "wrongText": "Wrong.",
   "steps": [
     {
       "type": "question",
       "text": "What if it doesn't work out?",
       "options": [
-        { "label": "Then I don't try", "correct": false },
-        { "label": "Then I learn", "correct": true }
+        {
+          "label": "Then I don't try",
+          "correct": false
+        },
+        {
+          "label": "Then I learn",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/whatif.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/whatif.mp4"
+    },
     {
       "type": "question",
       "text": "Safe or bold?",
       "options": [
-        { "label": "Safe", "correct": false },
-        { "label": "Bold", "correct": true }
+        {
+          "label": "Safe",
+          "correct": false
+        },
+        {
+          "label": "Bold",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/take_risks.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/take_risks.mp4"
+    },
     {
       "type": "question",
       "text": "Ready?",
       "options": [
-        { "label": "Not yet", "correct": false },
-        { "label": "Let's go", "correct": true }
+        {
+          "label": "Not yet",
+          "correct": false
+        },
+        {
+          "label": "Let's go",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/lets_fck.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/lets_fck.mp4"
+    },
     {
       "type": "question",
       "text": "Failing means...",
       "options": [
-        { "label": "Stop", "correct": false },
-        { "label": "Try again, faster", "correct": true }
+        {
+          "label": "Stop",
+          "correct": false
+        },
+        {
+          "label": "Try again, faster",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/fail_faster.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/fail_faster.mp4"
+    },
     {
       "type": "question",
       "text": "Failure is...",
       "options": [
-        { "label": "The end", "correct": false },
-        { "label": "A lesson", "correct": true }
+        {
+          "label": "The end",
+          "correct": false
+        },
+        {
+          "label": "A lesson",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/failure.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/failure.mp4"
+    },
     {
       "type": "question",
       "text": "At rock bottom, which way is left?",
       "options": [
-        { "label": "Down", "correct": false },
-        { "label": "Up", "correct": true }
+        {
+          "label": "Down",
+          "correct": false
+        },
+        {
+          "label": "Up",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/rock_bottom.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/rock_bottom.mp4"
+    },
     {
       "type": "question",
       "text": "Pain now, or regret later?",
       "options": [
-        { "label": "Regret later", "correct": false },
-        { "label": "Pain now", "correct": true }
+        {
+          "label": "Regret later",
+          "correct": false
+        },
+        {
+          "label": "Pain now",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/suffer.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/suffer.mp4"
+    },
     {
       "type": "question",
       "text": "Whose fault is it?",
       "options": [
-        { "label": "Theirs", "correct": false },
-        { "label": "Mine", "correct": true }
+        {
+          "label": "Theirs",
+          "correct": false
+        },
+        {
+          "label": "Mine",
+          "correct": true
+        }
       ],
-      "wrongText": "Really? Think about it."
+      "wrongText": "Wrong. Own it."
     },
-    { "type": "video", "src": "videos/my_fault.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/my_fault.mp4"
+    },
     {
       "type": "question",
       "text": "Who are you competing with?",
       "options": [
-        { "label": "Everybody else", "correct": false },
-        { "label": "Yesterday's me", "correct": true }
+        {
+          "label": "Everybody else",
+          "correct": false
+        },
+        {
+          "label": "Yesterday's me",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/everybody-else.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/everybody-else.mp4"
+    },
     {
       "type": "question",
       "text": "When does it get easier?",
       "options": [
-        { "label": "Tomorrow", "correct": false },
-        { "label": "Never. I get stronger.", "correct": true }
+        {
+          "label": "Tomorrow",
+          "correct": false
+        },
+        {
+          "label": "Never. I get stronger.",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/tomorrow_is_tougher.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/tomorrow_is_tougher.mp4"
+    },
     {
       "type": "question",
       "text": "What do you do when it gets hard?",
       "options": [
-        { "label": "Quit", "correct": false },
-        { "label": "Keep going", "correct": true }
+        {
+          "label": "Quit",
+          "correct": false
+        },
+        {
+          "label": "Keep going",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/never_quit.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/never_quit.mp4"
+    },
     {
       "type": "question",
       "text": "How many shots did Jordan miss?",
       "options": [
-        { "label": "Almost none", "correct": false },
-        { "label": "Thousands", "correct": true }
+        {
+          "label": "Almost none",
+          "correct": false
+        },
+        {
+          "label": "Thousands",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/jordan_2.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/jordan_2.mp4"
+    },
     {
       "type": "question",
       "text": "Who trains on the bad days?",
       "options": [
-        { "label": "Nobody", "correct": false },
-        { "label": "Champions", "correct": true }
+        {
+          "label": "Nobody",
+          "correct": false
+        },
+        {
+          "label": "Champions",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/phelps.mp4" },
-
+    {
+      "type": "video",
+      "src": "videos/phelps.mp4"
+    },
     {
       "type": "question",
       "text": "Good enough, or the best?",
       "options": [
-        { "label": "Good enough", "correct": false },
-        { "label": "The best", "correct": true }
+        {
+          "label": "Good enough",
+          "correct": false
+        },
+        {
+          "label": "The best",
+          "correct": true
+        }
       ]
     },
-    { "type": "video", "src": "videos/tate_best.mp4" },
-
     {
-      "type": "question",
-      "text": "Want the answer?",
-      "options": [
-        { "label": "Later", "correct": false },
-        { "label": "Now", "correct": true }
-      ]
-    },
-    { "type": "video", "src": "videos/answer.mp4" }
+      "type": "video",
+      "src": "videos/tate_best.mp4"
+    }
   ],
   "end": {
-    "heading": "You made it.",
-    "text": "Now go do the thing.",
-    "button": "Watch again"
+    "heading": "That's it.",
+    "text": "Now go. Nobody is coming to do it for you.",
+    "button": "Again"
   }
 }

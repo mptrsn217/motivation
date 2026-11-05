@@ -496,6 +496,7 @@
     player.classList.remove('visible');
     fadingOut = false;
     show('video');
+    player.volume = 0;          // audio starts silent and ramps up with the picture
     player.src = step.src;
     player.load();
     player.play().catch(() => {});
@@ -549,11 +550,24 @@
 
   let fadingOut = false;
   const FADE = 1.1; // seconds before the end to start fading out
-  player.addEventListener('playing', () => { if (!fadingOut) player.classList.add('visible'); });
+  let volTimer = null;
+  function rampVolume(to, ms) {   // smooth volume ramp (phones that lock volume just ignore it)
+    clearInterval(volTimer);
+    const from = player.volume, start = performance.now();
+    volTimer = setInterval(() => {
+      const t = Math.min(1, (performance.now() - start) / ms);
+      try { player.volume = from + (to - from) * t; } catch (e) {}
+      if (t >= 1) clearInterval(volTimer);
+    }, 30);
+  }
+  player.addEventListener('playing', () => {
+    if (!fadingOut) { player.classList.add('visible'); rampVolume(1, 1100); }
+  });
   player.addEventListener('timeupdate', () => {
     if (!fadingOut && player.duration && player.duration - player.currentTime <= FADE) {
       fadingOut = true;
       player.classList.remove('visible');
+      rampVolume(0, FADE * 1000);
     }
   });
   player.addEventListener('ended', () => {

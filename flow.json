@@ -72,6 +72,12 @@
       "hold": 3000
     },
     {
+      "type": "text",
+      "text": "A miracle.",
+      "tap": true,
+      "fade": 4000
+    },
+    {
       "type": "video",
       "src": "videos/whatif.mp4"
     },

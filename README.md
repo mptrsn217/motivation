@@ -9,7 +9,8 @@ stays dead until the page is opened again. Every open starts from the top.
 
 | File | What it is |
 |---|---|
-| `index.html` | The page. Colours and font are at the top of the file under `/* Theme */`. |
+| `index.html` | Tiny loader that always opens the newest `app.html`, so phones never show a stale version. |
+| `app.html` | The page itself. Colours and font are at the top of the file under `/* Theme */`. |
 | `flow.json` | **Your content**: the questions, the answers, and the order of videos. |
 | `videos/` | Your video files. Use `.mp4` for best phone support. |
 | `build.py` | Checks `flow.json` and the video files, and makes the QR code. |

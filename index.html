@@ -407,7 +407,7 @@
       sc.classList.add('slow');
       sc.style.setProperty('--fade', fade + 'ms');
       show('text');
-      requestAnimationFrame(() => requestAnimationFrame(() => sc.classList.add('in')));
+      setTimeout(() => sc.classList.add('in'), 60);   // next tick, so the fade actually runs
       setTimeout(() => { textTap = () => { textTap = null; go(index + 1); }; }, fade);
     } else {
       show('text');

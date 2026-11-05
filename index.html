@@ -234,6 +234,18 @@
   #restart-btn { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); opacity: 0; transition: opacity 1s 2s; }
   body.reveal #restart-btn:not([hidden]) { opacity: 1; }
 
+  /* Text screen that appears slowly and waits for a tap */
+  #screen-text.slow { cursor: pointer; }
+  #screen-text.slow h1 {
+    opacity: 0; transition: opacity var(--fade, 4s) ease-in;
+    animation: beckon 2.2s ease-in-out infinite, blink 1.7s steps(1) infinite;
+  }
+  #screen-text.slow.in h1 { opacity: 1; }
+  @keyframes blink {
+    0%, 100% { filter: none; } 31% { filter: brightness(1.6); } 33% { filter: none; }
+    64% { filter: brightness(.6); } 66% { filter: brightness(1.8); } 68% { filter: none; }
+  }
+
   /* Shot sequence */
   #shots-text { transition: none; }
   #shots-text.miss { animation: slam .3s steps(2) both; }
@@ -381,13 +393,28 @@
     go(index + 1);
   }
 
-  /* A line of text, no buttons; moves on by itself after "hold" ms. */
+  /* A line of text, no buttons. Either moves on by itself after "hold" ms,
+     or ("tap": true) fades in slowly over "fade" ms and waits for a tap. */
+  let textTap = null;
   function showText(step) {
     locked = true;
+    const sc = $('screen-text');
     $('text-line').textContent = step.text || '';
-    show('text');
-    setTimeout(() => go(index + 1), step.hold == null ? 3000 : step.hold);
+    sc.classList.remove('slow', 'in');
+    textTap = null;
+    if (step.tap) {
+      const fade = step.fade == null ? 4000 : step.fade;
+      sc.classList.add('slow');
+      sc.style.setProperty('--fade', fade + 'ms');
+      show('text');
+      requestAnimationFrame(() => requestAnimationFrame(() => sc.classList.add('in')));
+      setTimeout(() => { textTap = () => { textTap = null; go(index + 1); }; }, fade);
+    } else {
+      show('text');
+      setTimeout(() => go(index + 1), step.hold == null ? 3000 : step.hold);
+    }
   }
+  $('screen-text').addEventListener('click', () => { if (textTap) textTap(); });
 
   /* Any wrong button ends it: message, then black, dead until the page is opened again. */
   function gameOver() {

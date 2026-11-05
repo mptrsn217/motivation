@@ -38,10 +38,12 @@ Open `flow.json` in any text editor. Steps run top to bottom.
 - Put as many steps as you like, in any order. A question can follow a video,
   two videos can follow each other, and so on.
 - A question can have a single option (one button that just leads on).
-- A text-only screen: a line with no buttons that moves on by itself after `hold` ms.
+- A text-only screen: a line with no buttons that moves on by itself after `hold` ms,
+  or with `"tap": true` fades in slowly over `fade` ms, flashes, and waits for a tap.
 
 ```json
 { "type": "text", "text": "What if you can pull this off?", "hold": 3000 }
+{ "type": "text", "text": "A miracle.", "tap": true, "fade": 4000 }
 ```
 
 - A shot sequence: every press of the button is a miss. The number of presses it takes

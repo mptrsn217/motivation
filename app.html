@@ -84,12 +84,6 @@
   @keyframes cut { 0% { opacity: 1; } 15% { opacity: 1; background: #fff; } 16% { background: #000; opacity: 1; } 100% { background: #000; opacity: 0; } }
   @keyframes hit { 0% { opacity: .35; } 100% { opacity: 0; } }
 
-  /* Progress: thin line at the top */
-  #progress {
-    position: fixed; top: 0; left: 0; height: 2px; width: 0%; z-index: 5;
-    background: var(--red-hot); box-shadow: 0 0 12px var(--red-hot);
-    transition: width .6s cubic-bezier(.7,0,.2,1);
-  }
 
   /* Screens */
   .screen {
@@ -218,8 +212,7 @@
   /* Start: pure black, then the line appears; tap anywhere */
   #screen-start { cursor: pointer; }
   #screen-start h1 { opacity: 0; animation: none; }
-  body.onstart #progress { opacity: 0; }
-  body.onstart:not(.reveal) #grain, body.onstart:not(.reveal)::before { opacity: 0; }
+    body.onstart:not(.reveal) #grain, body.onstart:not(.reveal)::before { opacity: 0; }
   body.reveal #screen-start h1 {
     animation: flicker 1.1s steps(1) both, beckon 3s ease-in-out 1.2s infinite;
   }
@@ -263,7 +256,7 @@
   #screen-end { cursor: pointer; }
   #screen-end h1 { animation: flicker 1.1s steps(1) both, beckon 1.4s ease-in-out 1.1s infinite, blink .9s steps(1) 1.1s infinite; }
   body.dead * { pointer-events: none !important; }
-  body.dead .screen, body.dead #progress, body.dead #grain, body.dead #scan, body.dead #flicker, body.dead::before {
+  body.dead .screen, body.dead #grain, body.dead #scan, body.dead #flicker, body.dead::before {
     opacity: 0 !important; transition: opacity 1.8s ease-in !important;
   }
 
@@ -281,7 +274,6 @@
 </style>
 </head>
 <body class="onstart">
-  <div id="progress"></div>
   <div id="flash"></div>
   <div id="grain"></div>
   <div id="scan"></div>
@@ -349,10 +341,6 @@
     document.body.classList.toggle('onstart', name === 'start');
     if (name !== 'video') player.pause();
   }
-  function setProgress() {
-    const total = flow.steps.length;
-    $('progress').style.width = (Math.min(index, total) / total * 100) + '%';
-  }
   // Progress is not remembered: every scan starts from the top.
   function save(n) {}
   function load()  { return 0; }
@@ -374,7 +362,6 @@
   function go(n) {
     index = n;
     save(index);
-    setProgress();
     if (index >= flow.steps.length) return showEnd();
     const step = flow.steps[index];
     if (step.type === 'question') return showQuestion(step);
@@ -521,7 +508,6 @@
     $('start-heading').textContent = '';
     $('restart-btn').hidden = true;
     show('start');
-    setProgress();
     // Pure black first, then the line appears.
     setTimeout(() => {
       document.body.classList.add('reveal');

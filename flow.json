@@ -45,10 +45,6 @@
       "text": "Have you failed enough?",
       "options": [
         {
-          "label": "Yes",
-          "correct": false
-        },
-        {
           "label": "No",
           "correct": true
         }
@@ -96,18 +92,9 @@
       "src": "videos/suffer.mp4"
     },
     {
-      "type": "question",
-      "text": "Seen the rock bottom yet?",
-      "options": [
-        {
-          "label": "Yes",
-          "correct": false
-        },
-        {
-          "label": "No",
-          "correct": true
-        }
-      ]
+      "type": "text",
+      "text": "It begins from rock bottom.",
+      "hold": 3000
     },
     {
       "type": "video",
@@ -137,8 +124,6 @@
     }
   ],
   "end": {
-    "heading": "",
-    "text": "",
-    "button": "Again"
+    "heading": "Aight lets fuck!"
   }
 }

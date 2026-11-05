@@ -58,7 +58,8 @@ Open `flow.json` in any text editor. Steps run top to bottom.
 - `gaveUp` at the top sets the message shown on a wrong button.
 - A video `src` can also be a full `https://...` link to a video hosted elsewhere.
 - `start.heading` is the line that appears out of the black after `start.delay`
-  milliseconds. Tapping anywhere starts. `end` sets the last screen.
+  milliseconds. Tapping anywhere starts. `end.heading` is the flashing last line;
+  tapping it turns everything dark for good.
 
 After editing, check it:
 
